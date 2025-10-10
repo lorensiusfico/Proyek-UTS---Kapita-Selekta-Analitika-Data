@@ -28,3 +28,7 @@ class Transaction(BaseModel):
     due_date: date
     return_date: Optional[date] = None
     fine: int = 0
+
+class UserRoleRequest(BaseModel):
+    user: str
+    role: str  # 'admin' atau 'student'
