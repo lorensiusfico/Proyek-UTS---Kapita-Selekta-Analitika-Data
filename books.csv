@@ -1,0 +1,32 @@
+book_id,title,author,isbn,stock,available_stock
+1,Laskar Pelangi,Andrea Hirata,111-222,2,2
+2,Deep Work,Cal Newport,978-000000002,4,4
+3,Clean Code,Robert C. Martin,978-000000003,5,3
+4,The Pragmatic Programmer,Andrew Hunt,978-000000004,3,3
+5,Refactoring,Martin Fowler,978-000000005,4,2
+6,The Psychology of Money,Morgan Housel,978-000000006,7,7
+7,Start With Why,Simon Sinek,978-000000007,9,8
+8,"Thinking, Fast and Slow",Daniel Kahneman,978-000000008,3,3
+9,The 7 Habits of Highly Effective People,Stephen R. Covey,978-000000009,10,10
+10,Outliers,Malcolm Gladwell,978-000000010,7,6
+11,Grit,Angela Duckworth,978-000000011,3,1
+12,Essentialism,Greg McKeown,978-000000012,6,5
+13,So Good They Can't Ignore You,Cal Newport,978-000000013,10,8
+14,Cracking the Coding Interview,Gayle Laakmann McDowell,978-000000014,3,2
+15,Algorithms to Live By,Brian Christian,978-000000015,6,5
+16,Zero to One,Peter Thiel,978-000000016,3,1
+17,Lean Startup,Eric Ries,978-000000017,5,3
+18,Hooked,Nir Eyal,978-000000018,6,6
+19,Rework,Jason Fried,978-000000019,4,4
+20,Drive,Daniel H. Pink,978-000000020,3,2
+21,Mindset,Carol S. Dweck,978-000000021,3,3
+22,Can't Hurt Me,David Goggins,978-000000022,2,0
+23,Educated,Tara Westover,978-000000023,3,1
+24,The Subtle Art of Not Giving a F*ck,Mark Manson,978-000000024,4,2
+25,Ikigai,Héctor García,978-000000025,7,7
+26,Digital Minimalism,Cal Newport,978-000000026,2,0
+27,Extreme Ownership,Jocko Willink,978-000000027,4,2
+28,The Power of Now,Eckhart Tolle,978-000000028,5,4
+29,12 Rules for Life,Jordan B. Peterson,978-000000029,2,0
+30,The Lean Product Playbook,Dan Olsen,978-000000030,2,2
+32,Hujan,Tere Liye,978-6020332955,10,10
