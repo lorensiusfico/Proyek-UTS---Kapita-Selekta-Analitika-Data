@@ -28,9 +28,11 @@ def borrow(payload: LoanCreate, x_role: str = Header(..., alias="X-Role"), x_use
         "user_id": x_user_id,
         "start_date": start,
         "due_date": due,
-        "total_days_allowed": payload.days,  # awal
+        "total_days_allowed": payload.days,  #awal
         "returned_date": None,
         "fine": 0,
+        "paid": False,
+        "paid_at": None
     }
     BOOKS[payload.book_id]["stock"] -= 1
     return LOANS[loan_id]
@@ -46,7 +48,7 @@ def extend(loan_id: str, extra_days: int, x_role: str = Header(..., alias="X-Rol
     if not can_extend(loan["total_days_allowed"], extra_days):
         raise HTTPException(400, f"Max total {MAX_TOTAL_DAYS} days")
     loan["total_days_allowed"] += extra_days
-    # due date baru = start_date + total_days_allowed
+    #due date baru = start_date + total_days_allowed
     loan["due_date"] = calc_due_date(loan["start_date"], loan["total_days_allowed"])
     return loan
 
@@ -61,6 +63,40 @@ def return_book(loan_id: str, x_role: str = Header(..., alias="X-Role"), x_user_
     returned = date.today()
     loan["returned_date"] = returned
     loan["fine"] = calc_fine(loan["due_date"], returned)
-    # kembalikan stok
+    #kembalikan stok
     BOOKS[loan["book_id"]]["stock"] += 1
+    return loan
+
+def require_student_or_admin(x_role: str, x_user_id: str | None, loan_user_id: str):
+    if x_role == "admin":
+        return
+    if x_role == "student" and x_user_id == loan_user_id:
+        return
+    raise HTTPException(403, "Not allowed")
+
+@router.post("/loans/{loan_id}/pay")
+def pay_fine(
+    loan_id: str,
+    x_role: str = Header(..., alias="X-Role"),
+    x_user_id: str | None = Header(None, alias="X-User-Id"),
+):
+    """
+    Menandai denda sudah dibayar.
+    Hanya boleh oleh admin atau pemilik loan (student yg sama).
+    Hanya bisa setelah buku dikembalikan.
+    """
+    loan = LOANS.get(loan_id)
+    if not loan:
+        raise HTTPException(404, "Loan not found")
+
+    #hanya admin atau pemilik loan
+    require_student_or_admin(x_role, x_user_id, loan["user_id"])
+
+    #wajib sudah dikembalikan dulu
+    if loan["returned_date"] is None:
+        raise HTTPException(400, "Return the book first")
+
+    #set pembayaran
+    loan["paid"] = True
+    loan["paid_at"] = date.today()
     return loan
