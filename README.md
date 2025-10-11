@@ -1,19 +1,24 @@
 # Proyek UTS Kapita Selekta Analitika Data
 **📚 Library Management API (FastAPI)**
 
+---
 ## 🚀 Fitur Utama
 - **Admin**
   - Menambah, memperbarui, dan menghapus buku.
-  - Melihat daftar buku yang sedang dipinjam dan laporan keterlambatan.
+  - Melihat daftar pinjaman aktif & keterlambatan (*overdue*).
 - **Mahasiswa**
-  - Melihat daftar buku tersedia.
-  - Meminjam, memperpanjang, dan mengembalikan buku.
+  - Melihat buku tersedia.
+  - Meminjam buku, memperpanjang masa pinjam, mengembalikan buku.
+  - Melihat detail loan milik sendiri, membayar denda setelah pengembalian.
 - **Otomatisasi Sistem**
-  - Pengurangan stok saat buku dipinjam.
-  - Pengembalian stok saat buku dikembalikan.
-  - Validasi perpanjangan maksimal **30 hari total**.
-  - Perhitungan denda otomatis: **Rp 1000 × jumlah hari keterlambatan**.
-  - Riwayat peminjaman tersimpan selama server aktif.
+  - Stok otomatis berkurang saat pinjam & bertambah saat kembali.
+  - Validasi total durasi ≤ 30 hari dari tanggal pinjam pertama.
+  - Denda otomatis, yaitu Rp 5.000 × hari keterlambatan.
+  - Denda dibekukan saat return bisa ditandai lunas lewat *endpoint pay*.
+- **Debug/QA (admin-only)**
+  - Set tanggal jatuh tempo (relative/absolute) agar mudah menguji *overdue* dan denda.
+  - Laporan otomatis menghitung ulang denda untuk loan yang belum dikembalikan.
+---
 
 ## Struktur Folder
 ```
@@ -63,7 +68,7 @@ Body:
 ### Pinjam buku
 ```
 POST /loans
-Headers: { "X-Role": "student", "X-User-Id": "S001" }
+Headers: { "X-Role": "student", "X-User-Id": "6162x01xxx" }
 Body:
 {
   "book_id": "B001",
@@ -74,19 +79,32 @@ Body:
 ### Perpanjang peminjaman
 ```
 POST /loans/{loan_id}/extend?extra_days=5
-Headers: { "X-Role": "student", "X-User-Id": "S001" }
+Headers: { "X-Role": "student", "X-User-Id": "6162x01xxx" }
 ```
 
 ### Kembalikan buku
 ```
 POST /loans/{loan_id}/return
-Headers: { "X-Role": "student", "X-User-Id": "S001" }
+Headers: { "X-Role": "student", "X-User-Id": "6162x01xxx" }
+```
+
+### Bayar Denda
+```
+POST /loans/{loan_id}/pay
+Headers (salah satu):
+- Admin:   { "X-Role": "admin" }
+- Student: { "X-Role": "student", "X-User-Id": "6162x01xxx" }  # pemiliknya
 ```
 
 ### Laporan admin
 ```
 GET /reports/active-loans
 GET /reports/overdue
+Headers: { "X-Role": "admin" }
+```
+Untuk debug, melihat denda bekerja atau tidak
+```
+POST /reports/_debug/set-due/{loan_id}?days_ago=3
 Headers: { "X-Role": "admin" }
 ```
 ---
@@ -117,5 +135,7 @@ Test utama mencakup:
 | **POST /loans/{loan_id}/return** | ❌ | ✅ |
 | **GET /reports/active-loans** | ✅ | ❌ |
 | **GET /reports/overdue** | ✅ | ❌ |
+| **POST /loans/{loan_id}/pay** | ✅ | ✅ (Untuk mahasiswa peminjam) |
+| **POST /reports/_debug/set-due-absolute/{loan_id}** | ✅ | ❌ |
 
 ---
