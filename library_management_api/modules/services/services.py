@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-FINE_PER_DAY = 1000
+FINE_PER_DAY = 5000
 MAX_TOTAL_DAYS = 30
 
 def calc_due_date(start_date: date, days: int) -> date:
