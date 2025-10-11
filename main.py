@@ -3,7 +3,7 @@ from library_management_api.modules.routes.books import router as books_router
 from library_management_api.modules.routes.loans import router as loans_router
 from library_management_api.modules.routes.reports import router as reports_router
 
-app = FastAPI(title="Sistem Peminjaman Buku (Tanpa DB/JWT)")
+app = FastAPI(title="Library Management")
 
 def get_auth(
     x_role: str = Header(..., alias="X-Role"),
