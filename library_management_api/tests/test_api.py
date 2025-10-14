@@ -26,20 +26,20 @@ def reset_repo():
         repo.SEQ.clear()
         repo.SEQ.update(deepcopy(_INITIAL_SEQ))
 
-# 1.) list buku (happy path)
+# 1.) list buku
 def test_list_books_ok():
     reset_repo()
     r = client.get("/books", headers={"X-Role": "student", "X-User-Id": "S123"})
     assert r.status_code == 200
     assert isinstance(r.json(), list)
 
-# 2.) alur pinjam → perpanjang → kembali (happy path)
+# 2.) alur pinjam → perpanjang → kembali
 def test_borrow_and_return():
     reset_repo()
     #borrow
     r = client.post(
         "/loans",
-        json={"book_id": "B001", "days": 7},
+        json={"book_id": "B001", "days": 5},
         headers={"X-Role": "student", "X-User-Id": "S999"},
     )
     assert r.status_code == 200
@@ -52,7 +52,7 @@ def test_borrow_and_return():
         headers={"X-Role": "student", "X-User-Id": "S999"},
     )
     assert r2.status_code == 200
-    assert r2.json()["total_days_allowed"] == 12
+    assert r2.json()["total_days_allowed"] == 10
 
     #return
     r3 = client.post(
@@ -121,7 +121,7 @@ def test_borrow_out_of_stock():
 
     r = client.post(
         "/loans",
-        json={"book_id": target_id, "days": 7},
+        json={"book_id": target_id, "days": 5},
         headers={"X-Role": "student", "X-User-Id": "S11"},
     )
     assert r.status_code == 400
@@ -133,18 +133,26 @@ def test_extend_rejects_over_30_days_total():
     book = "B003" if "B003" in repo.BOOKS else list(repo.BOOKS)[0]
     r = client.post(
         "/loans",
-        json={"book_id": book, "days": 14},
+        json={"book_id": book, "days": 5},
         headers={"X-Role": "student", "X-User-Id": "S12"},
     )
     assert r.status_code == 200
     loan_id = r.json()["loan_id"]
 
-    r2 = client.post(
-        f"/loans/{loan_id}/extend",
-        params={"extra_days": 20},
+    #capai total 30 hari: tambah 5 hari sebanyak 5 kali
+    for _ in range(5):
+        rr = client.post(
+        f"/loans/{loan_id}/extend?extra_days=5",
         headers={"X-Role": "student", "X-User-Id": "S12"},
     )
-    assert r2.status_code == 400
+    assert rr.status_code == 200
+
+    #coba lewatkan batas (31) → harus 400
+    rr_bad = client.post(
+    f"/loans/{loan_id}/extend?extra_days=1",
+    headers={"X-Role": "student", "X-User-Id": "S12"},
+    )
+    assert rr_bad.status_code == 400
 
 # 7.) pengembalian telat → denda sesuai hari
 def test_return_with_overdue_fine():
@@ -166,16 +174,16 @@ def test_return_with_overdue_fine():
         headers={"X-Role": "student", "X-User-Id": "S13"},
     )
     assert r2.status_code == 200
-    assert r2.json()["fine"] == 3000  # 3 * 1000
+    assert r2.json()["fine"] == 15000  # 3 * 1000
 
 # 8.) reports admin: active-loans & overdue
 def test_reports_endpoints():
     reset_repo()
     #1 aktif
     r1 = client.post(
-        "/loans",
-        json={"book_id": list(repo.BOOKS)[0], "days": 7},
-        headers={"X-Role": "student", "X-User-Id": "S20"},
+    "/loans",
+    json={"book_id": list(repo.BOOKS)[0], "days": 5},  # <— dari 7 ke 5
+    headers={"X-Role": "student", "X-User-Id": "S20"},
     )
     assert r1.status_code == 200
 
