@@ -13,7 +13,7 @@ def get_auth(
         raise HTTPException(403, "X-Role harus 'admin' atau 'student'")
     return {"role": x_role, "user_id": x_user_id}
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root():
     return {"ok": True}
 
